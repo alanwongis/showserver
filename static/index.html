@@ -1,0 +1,64 @@
+<html>
+<head>
+<title>Welcome</title>
+<style>
+
+
+
+</style>
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/jquery.mobile-1.4.5/jquery.mobile-1.4.5.css">
+<script src="/static/jquery.mobile-1.4.5/jquery.js"></script>
+<script src="/static/jquery.mobile-1.4.5/jquery.mobile-1.4.5.min.js"></script>
+
+
+<script>
+
+    var curr_action = 1;
+    
+    var play_action = function() {
+        $.ajax({
+           url: "/play",
+           success: function(result) {
+                $("#message").html("<strong>"+result+"</strong>");
+                console.log(result);
+           }
+        });
+        console.log("play");
+    };
+    
+    var stop_action = function() {
+        console.log("stop");
+    };
+
+    var next_action = function() {
+        console.log("next");
+    };  
+
+    var prev_action = function() {
+        console.log("prev");
+    };
+    
+    var panic_action = function() {
+        console.log("PANIC");
+    };
+   
+   
+</script>
+</head>
+<body>
+</body>
+<div data-role="main">
+<button onclick="play_action();">Play/Pause</button>
+<button onclick="next_action();">Next</button>
+<button onclick="prev_action();">Prev</button>
+<button onclick="stop_action();">Stop</button>
+<button onclick="panic_action();">PANIC</button>
+<h3>Messages</h3>
+<div id="message" class="ui-shadow" style="height:50px;">
+
+    
+</div>
+</html>
