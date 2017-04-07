@@ -5,7 +5,8 @@ import os
 import shutil
 import subprocess
 
-curr_dir = "/home/pi/Desktop/showserver"
+curr_dir = os.path.split(os.path.abspath(__file__))[0]
+print curr_dir
 
 
 
@@ -32,7 +33,7 @@ class Root(object):
     @cherrypy.expose
     def play(self):
         playing =subprocess.Popen(['mpg123',
-                                   curr_dir+"/music/Lobo_Loco_-_15_-_Party_On_Xanox_5_ID_487.mp3"])
+                                   os.path.join(curr_dir, "music","Lobo_Loco_-_15_-_Party_On_Xanox_5_ID_487.mp3")])
         return "play!"
         
     @cherrypy.expose        
@@ -58,7 +59,7 @@ if __name__ == "__main__":
     root_conf = {
         '/static': {
             'tools.staticdir.on': True,
-            'tools.staticdir.dir': os.path.abspath('/home/pi/Desktop/showserver/static')
+            'tools.staticdir.dir': os.path.join(curr_dir, 'static')
         }           
     }
 
