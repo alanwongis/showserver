@@ -26,23 +26,50 @@
                 console.log(result);
            }
         });
-        console.log("play");
     };
     
+
     var stop_action = function() {
-        console.log("stop");
+        $.ajax({
+           url: "/stop",
+           success: function(result) {
+                $("#message").html("<strong>"+result+"</strong>");
+                console.log(result);
+           }
+        });
     };
+
 
     var next_action = function() {
-        console.log("next");
+        $.ajax({
+           url: "/next",
+           success: function(result) {
+                $("#message").html("<strong>"+result+"</strong>");
+                console.log(result);
+           }
+        });
     };  
 
+
     var prev_action = function() {
-        console.log("prev");
+        $.ajax({
+           url: "/prev",
+           success: function(result) {
+                $("#message").html("<strong>"+result+"</strong>");
+                console.log(result);
+           }
+        });
     };
     
+
     var panic_action = function() {
-        console.log("PANIC");
+        $.ajax({
+           url: "/panic",
+           success: function(result) {
+                $("#message").html("<strong>"+result+"</strong>");
+                console.log(result);
+           }
+        });
     };
    
    

@@ -3,6 +3,9 @@ import cherrypy
 import json
 import os
 import shutil
+import subprocess
+
+curr_dir = "/home/pi/Desktop/showserver"
 
 
 
@@ -28,22 +31,25 @@ class Root(object):
         
     @cherrypy.expose
     def play(self):
-        return "play"
+        playing =subprocess.Popen(['mpg123',
+                                   curr_dir+"/music/Lobo_Loco_-_15_-_Party_On_Xanox_5_ID_487.mp3"])
+        return "play!"
         
     @cherrypy.expose        
     def next(self):
-        return "next"
+        return "next!"
     @cherrypy.expose       
     def prev(self):
-        return "prev"
+        return "prev!"
         
     @cherrypy.expose
     def stop(self):
-        return "stop"
+        subprocess.call(["killall", "mpg123"])
+        return "stop!"
        
     @cherrypy.expose
     def panic(self):
-        return "panic"
+        return "panic!"
 
 
 
@@ -52,7 +58,7 @@ if __name__ == "__main__":
     root_conf = {
         '/static': {
             'tools.staticdir.on': True,
-            'tools.staticdir.dir': os.path.abspath('./static')
+            'tools.staticdir.dir': os.path.abspath('/home/pi/Desktop/showserver/static')
         }           
     }
 
@@ -65,5 +71,5 @@ if __name__ == "__main__":
         }
     }
 
-
+    cherrypy.config.update({'server.socket_host': '0.0.0.0'} )
     cherrypy.quickstart(Root(), '/', root_conf)
