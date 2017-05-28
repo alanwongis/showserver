@@ -1,3 +1,8 @@
 music/*
+bin/*
+include/*
+lib/*
+static/jquery.mobile-1.4.5
 *.pyc
 vlc.py
+pip-selfcheck.json

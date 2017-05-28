@@ -1,0 +1,43 @@
+<html>
+<head>
+<title>Upload Song</title>
+<style>
+
+
+
+</style>
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/jquery.mobile-1.4.5/jquery.mobile-1.4.5.css">
+<script src="/static/jquery.mobile-1.4.5/jquery.js"></script>
+<script src="/static/jquery.mobile-1.4.5/jquery.mobile-1.4.5.min.js"></script>
+
+<script>
+    
+    $.getJSON( "/list_songs", function(data) {
+        console.log(data);
+        var length = data.length;
+        for(var i=0; i<length; i++) {
+            $("#music_list").append("<li>"+data[i]+"</li>");
+        }
+    });
+    
+    
+</script>
+
+</head>
+<body>
+
+<ul id="music_list">
+</ul>
+
+<form action="/upload_song" method="post" enctype="multipart/form-data" data-ajax="false">
+Select file: 
+<input type="file" name="songfile" id="songfile"  />
+<input type="submit" value="Upload song file" />
+</form>
+
+</body>
+</html>
+
