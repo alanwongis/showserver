@@ -1,22 +1,121 @@
 <html>
 <head>
 <title>Welcome</title>
-<style>
-
-
-
-</style>
-
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="/static/jquery.mobile-1.4.5/jquery.mobile-1.4.5.css">
+<link rel="stylesheet" href="/static/jquery.mobile-1.4.5/jquery-ui.min.css">
+
 <script src="/static/jquery.mobile-1.4.5/jquery.js"></script>
+<script src="/static/jquery.mobile-1.4.5/jquery-ui.min.js"></script>
 <script src="/static/jquery.mobile-1.4.5/jquery.mobile-1.4.5.min.js"></script>
 
+<style>
+
+#playlist span {
+    float: right;
+}
+#playlist_messages {
+    color: red;
+}
+
+</style>
 
 <script>
-
     var curr_action = 1;
+    
+    
+    var playlist;
+    
+    var songlist;
+    
+    
+    
+   /* ------------*/
+   /* UI handlers */
+   /* ------------*/
+        
+     
+    /* playlist */
+    /* -------- */
+
+
+    
+    var get_playlist= function() {
+        $.ajax({
+            url: "/get_playlist", 
+            success: function(result) {
+                console.log("got");
+            }
+         
+         });   
+    };
+    
+    var save_playlist = function() {
+        var playlist = $("#playlist li");
+        var items = [];
+        for(var i=0; i<playlist.length; i++) {
+            //console.log($(playlist[i]).text());
+            items.push($(playlist[i]).text());
+        }
+        console.log(items);
+        $.ajax({
+            url: "/update_playlist",
+            contentType: "application/json",
+            data: JSON.stringify(items),
+            type: "POST",
+        
+            success: function(results) {
+                $("#playlist_messages").html( "<b>Saved</b>");
+                console.log(results);
+            }
+        });
+    };
+      
+    
+    var append_playlist = function(song) {
+        var playlist = $("#playlist");
+        playlist.append('<li>' + songlist[song] + 
+                        '<span><a href="#" onclick="remove_playlist_item(this);">Remove</a><span></li>');
+        playlist.listview("refresh");
+    };
+    
+    var remove_playlist_item = function(item) {
+        $(item).parent().parent().remove();
+    };
+    
+    
+
+   /*songlist*/
+   /*--------*/
+   
+   
+    var add_song = function(song_num) {
+        console.log("add song " + song_num);
+    };
+    
+    
+   
+   var update_songlist = function() {
+       $.ajax({
+        url: "/get_songlist",
+        success: function(result) {
+            songlist = result;
+            var ul = $("#songlist");
+            ul.empty();
+            for(var i=0; i<3; i++) {
+                ul.append('<li>'+ songlist[i] +' <span style="float: right;"><a href="#" onclick="append_playlist('+i+');")>Add</a></span>');     
+            }
+            ul.listview("refresh");
+        }
+        });
+     };
+  
+ 
+
+    
+    
+    /* player buttons */
     
     var play_action = function() {
         $.ajax({
@@ -72,20 +171,82 @@
         });
     };
    
+   /* app init */
    
+   $(document).on("pagecreate", "#settings", function() {
+        $("#playlist").sortable();
+        $("#playlist").disableSelection();
+        update_songlist();
+        
+     }
+   );
+   
+   
+
 </script>
 </head>
-<body>
-</body>
-<div data-role="main">
-<button onclick="play_action();">Play/Pause</button>
-<button onclick="next_action();">Next</button>
-<button onclick="prev_action();">Prev</button>
-<button onclick="stop_action();">Stop</button>
-<button onclick="panic_action();">PANIC</button>
-<h3>Messages</h3>
-<div id="message" class="ui-shadow" style="height:50px;">
 
+
+<body>
+
+<div data-role="page" id="one">
+
+    <div data-role="header">
+        <h1>Music Server Funkadelic</h1>
+    </div>
+
+    <div role="main" class="ui-content">
     
-</div>
+        <h3>Playlist: The show of shows <a>Change</a></h3>
+        <h4>Song 1:</h4>
+        <div id="message" class="ui-shadow" style="height:50px;"> </div>
+        
+        <button onclick="play_action();">Play/Pause</button>
+        <button onclick="next_action();">Next</button>
+        <button onclick="prev_action();">Prev</button>
+        <button onclick="stop_action();">Stop</button>
+        <button onclick="panic_action();">PANIC</button>
+
+    </div>
+    <div data-role = "footer">
+        <p>&copy; Alan Wong 
+        <a href="#settings" class="ui-btn ui-shadow ui-corner-all">Settings</a></p>
+    </div>
+ 
+</div><!-- page -->
+
+
+
+<div data-role="page" id="settings" data-theme="a">
+
+    <div data-role="header">
+        <p><a href="#one">Back</a></p>
+    </div>
+
+    <div role = "main" class="ui-content">
+       
+        <h1>Playlist</h1>
+        <p>(Drag to reorder)</p>
+        <p id="playlist_messages"></p>
+        <ul data-role="listview" data-editable="true" id="playlist"  data-inset="true">
+ 
+        </ul>
+        <button onclick="save_playlist();">Save</button>
+        
+        <h1>Available Songs</h1>
+        
+        <ul data-role="listview" data-inset="true" id="songlist">
+            <li>Princess Leia's Stolen Death Star Plans.mp3 <span><a href="#" onclick="append_playlist(0);")>Add</a></span></li>
+            <li>Luke is in the Desert.mp3                   <span><a href="#" onclick="append_playlist(1);")>Add</a></span></li>
+            <li>Never Better.mp3                            <span><a href="#" onclick="append_playlist(2);")>Add</a></span></li>
+        </ul>
+        
+    </div>
+</div><!-- page -->
+
+
+
+
+</body>
+
 </html>
