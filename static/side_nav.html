@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
+<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+<style>
+
+@media all and ( min-width:32em ) {
+
+
+	.menu-panel-open {
+		display: none !important;
+	}
+	
+	.menu-panel-close {
+	    display: none !important;
+	 }
+	 
+	.menu-panel {
+		visibility: visible;
+		position: relative;
+		left: 0;
+		clip: initial;
+		float: left;
+		width: 25%;
+		height: 100vh;
+
+		-webkit-transition: none !important;
+		-moz-transition: none !important;
+		transition: none !important;
+		-webkit-transform: none !important;
+		-moz-transform: none !important;
+		transform: none !important;
+		
+		-webkit-box-shadow: none;
+		-moz-box-shadow: none;
+		box-shadow: none;
+
+	}
+	
+
+	.main {
+		width: 67%;
+		padding-top: 2em;
+		padding-left: 5%;
+		padding-right: 3%;
+		float: right;
+	
+	}
+    
+    /* disable the dismiss layer that normally closes the panel */
+     .ui-panel-dismiss {
+        display: none !important;
+     }
+}
+
+
+
+</style>
+
+
+</head>
+
+
+<body>
+
+<div data-role="page" id="one" class="page">
+
+    <div data-role="header" class="header">
+        <a href="#page-one-menu" class="menu-panel-open" title="Main Menu">&#9776;</a>  
+        <h1>Music</h1>
+    </div>
+
+    <div role="main" class="ui-content main">
+        <p>This is the main content area</p>
+    </div>
+
+    <div data-role = "panel" id = "page-one-menu" class="menu-panel" data-position="left" data-display="overlay">
+        <a href="#one" class="menu-panel-close" data-rel="close">Close</a>
+        <h2> this is on the side</h2>
+    </div>
+ 
+</div><!-- page -->
+
+
+
+
+
+
+</body>
+
+</html>

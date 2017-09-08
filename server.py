@@ -36,22 +36,25 @@ def error_page_default(status, message, trackback, version):
 #----------
 
 settings = {}
-try:
-    settings = pickle.load(open("settings.pkl", "rb"))
-except:
-    initialize_settings()
-
 
 def update_settings():
     pickle.dump(settings, open("settings.pk1", "wb"), protocol=2)
 
 
-def initialze_settings():
+def initialize_settings():
+    global settings
     playlists = {"default": ["01 Common People.m4a",
                              "02 Mediational Field.m4a"] }
-    pickle.dump(playlist, open("playlists.pkl", "wb"), protocol = 2)
+    pickle.dump(playlists, open("playlists.pkl", "wb"), protocol = 2)
     settings = {"last_playlist": "default"}
     pickle.dump(settings, open("settings.pkl", "wb"), protocol= 2)
+    
+
+try:
+    settings = pickle.load(open("settings.pkl", "rb"))
+except:
+    initialize_settings()
+
       
 # all music files 
 #-------------
@@ -91,11 +94,11 @@ class PlaylistManager(object):
 
     def new_playlist(self):
         # creates a new empty playlist
-        if not "new playlist" in self.playlist.keys():
+        if not "new playlist" in self.playlists.keys():
             playlist_name = "new playlist"
         else:
             n = 1
-            while not "new playist "+str(n) in self.playlists.keys():
+            while "new playist "+str(n) in self.playlists.keys():
                 n += 1
             playlist_name = "new playlist "+str(n)
         self.update_playlist(playlist_name, [])
@@ -275,6 +278,16 @@ class Root(object):
     @cherrypy.tools.json_out()
     def get_playlist(self):
         return playlists.get_songs()
+        
+    @cherrypy.expose
+    @cherrypy.tools.json_in()
+    @cherrypy.tools.json_out()
+    def rename_playlist(self):
+        request = cherrypy.request.json
+        old_name = request["old_name"]
+        new_name = request["new_name"]
+        return playlists.rename_playlist(old_name, new_name)
+        
         
     
 
