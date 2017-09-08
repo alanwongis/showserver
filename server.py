@@ -10,23 +10,19 @@ import subprocess
 
 
 
+# directories
+#-------------
+
 #curr_dir = "/home/pi/Desktop/showserver"
 curr_dir = os.path.split(os.path.abspath(__file__))[0]
 music_dir = os.path.join(curr_dir, "music")
 playlist_dir = os.path.join(curr_dir, "playlists")
 
-settings = {}
-settings = pickle.load(open("settings.pkl", "r"))
-
-playlists = {}
-playlists = pickle.load(open("playlists.pkl", "r"))
-
-curr_playlist_name = settings["default_playlist"]
-curr_playlist = playlists[curr_playlist_name]
-curr_playlist_song = 0
 
 
 # error message handler
+#-----------------------
+
 def error_page_default(status, message, trackback, version):
     ret = {
         'status': status,
@@ -36,31 +32,147 @@ def error_page_default(status, message, trackback, version):
     return json.dumps(ret)
 
 
+# settings
+#----------
 
-def list_playlists():
-    return playlists.keys()
+settings = {}
+try:
+    settings = pickle.load(open("settings.pkl", "rb"))
+except:
+    initialize_settings()
 
-def load_playlist(name):
-    curr_playlist = playlists[name]
-    curr_playlist_name = name
 
-def new_playlist(name):
-    if not(name in playlists.keys()):
-        playlists[name] = []
-    return playlists[name]
-        
-def update_playlist(name, songs):
-    playlists[name] = songs
-    pickle.dump(playlists, open("playlist.txt", "w"))
-    
+def update_settings():
+    pickle.dump(settings, open("settings.pk1", "wb"), protocol=2)
 
-    
+
+def initialze_settings():
+    playlists = {"default": ["01 Common People.m4a",
+                             "02 Mediational Field.m4a"] }
+    pickle.dump(playlist, open("playlists.pkl", "wb"), protocol = 2)
+    settings = {"last_playlist": "default"}
+    pickle.dump(settings, open("settings.pkl", "wb"), protocol= 2)
+      
+# all music files 
+#-------------
     
 def list_music():
     filenames  = os.listdir(music_dir)
     return filenames
     
+
+def save_music(file_name, data):
+    return
+
+   
+# playlists
+#----------
+
+class PlaylistManager(object):
+
+    def __init__(self):
+        try:
+            self.playlists  = pickle.load(open("playlists.pkl", "rb"))
+        except:
+            self.playlists = { "default": []}
+        self.curr_playlist_name = "default"
+
+
+    def list_all(self):
+        """returns all the playlist names"""
+        return self.playlists.keys()
+
+    def select_playlist(self, name):
+        self.curr_playlist_name = name
+
+    def get_songs(self):
+        return [self.curr_playlist_name,
+                self.playlists[self.curr_playlist_name] ]
+
+    def new_playlist(self):
+        # creates a new empty playlist
+        if not "new playlist" in self.playlist.keys():
+            playlist_name = "new playlist"
+        else:
+            n = 1
+            while not "new playist "+str(n) in self.playlists.keys():
+                n += 1
+            playlist_name = "new playlist "+str(n)
+        self.update_playlist(playlist_name, [])
+        return playlist_name
+
+
+    def rename_playlist(self, old_name, new_name):
+        if not new_name in self.playlists.keys():
+            self.playlists[new_name] = self.playlists[old_name]
+            self.playlists.pop(old_name)
+            return True
+        else:
+            return False # can't rename  because name already exists
+            
+            
+    def update_playlist(self, name, songs):
+        self.playlists[name] = songs
+        pickle.dump(self.playlists, open("playlists.pkl", "wb"), protocol = 2)
+
+     
+playlists = PlaylistManager()
+playlists.select_playlist(settings["last_playlist"])
+
+
+
+
+#  music playback interface
+#---------------------------
+
+class DummyMusicPlayer(object):
+
+    def __init__(self, playlist=None):
+        self.playlist = playlist
+        if self.playlist:
+            self.curr_song = 0
+            self.curr_song_name = self.playlist[0]
+        else:
+            self.curr_song = -1
+            self.curr_song_name = "None"
+        self.status = "stopped"
+       
+    def play(self):
+        return self.get_status()
     
+    def next(self):
+        song_number = 1
+        song_name = "next dummmy song"
+        status = "playing"
+        return self.get_status()
+    
+    
+    def prev(self):
+        song_number = 1
+        song_name = "prev dummy song"
+        status = "playing"
+        return self.get_status()
+  
+  
+    def stop(self):
+        song_number = 1
+        song_name = "prev dummy song"
+        status = "playing"
+        return self.get_status()
+  
+    def change_song(self, song_num = 1):
+        return self.get_status()
+      
+    def get_status(self):
+        return {"song_title_": "a songe", "track_num": 1,  "status": "playing", "time": 0, "length": 100}
+       
+       
+music_player = DummyMusicPlayer() 
+  
+
+  
+# web interface   
+#---------------
     
 class Root(object):
     
@@ -70,43 +182,39 @@ class Root(object):
     def index(self):
         raise cherrypy.HTTPRedirect("/static/index.html")
 
-    # music player api
+    # player API
         
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def play(self):
-        try:
-            playing = subprocess.Popen(['mpg123',
-                                        curr_dir+"/music/Fanfare.mp3"])
-        except:
-            print("exception playing song")
-            pass
-        return "play!"
+        return music_player.play()
         
-    @cherrypy.expose        
+    @cherrypy.expose 
+    @cherrypy.tools.json_out()    
     def next(self):
-        return "next!"
+        return music_player.next()
         
-    @cherrypy.expose       
+    @cherrypy.expose 
+    @cherrypy.tools.json_out()    
     def prev(self):
-        return "prev!"
+        return music_player.prev()
         
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def stop(self):
-        try:
-            subprocess.call(["killall", "mpg123"])
-        except:
-            print("exception stopping song")
-        return "stop!"
+        return music_player.stop()
        
-    @cherrypy.expose
-    def panic(self):
-        return "panic!"
         
     @cherrypy.expose
-    def hello(self, name):
-        names.append(name)
-        return "<html><body><h1>Hello "+ str(names)+ "</h1></body</html>"
-
+    @cherrypy.tools.json_out()
+    def status(self):
+        status_msg = { "song": "dummy song name",
+                       "track_num": 1,
+                       "track_lenght": 60,
+                       "curr_time": 1, 
+                       "state": "paused" }     
+        return status_msg
+        
     # songlist API
     
     @cherrypy.expose
@@ -116,9 +224,12 @@ class Root(object):
     
     @cherrypy.expose
     def delete_song(self, filename):
+        # TODO...
         return
         
     @cherrypy.expose
+    @cherrypy.tools.json_in()
+    @cherrypy.tools.json_out()
     def upload_song(self,songfile=None):
         filename = os.path.join(music_dir, songfile.filename)
         data = ""
@@ -134,25 +245,43 @@ class Root(object):
         f.close()
         return str( (filename, size) )
         
-
     # playlist API
     
-    @cherrypy.expose  
-    def get_playlist(self):
-        return str(curr_playlist)
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    def list_all(self):
+        return playlists.list_all()
 
     @cherrypy.expose
-    @cherrypy.tools.json_in()
-    def update_playlist(self):
-        items = cherrypy.request.json
-        print(items)
-        return "Done"
-
-    def new_playlist(self):
-        pass
+    def select_playlist(self, name):
+        playlists.select_playlist(name)
         
+    @cherrypy.expose
+    @cherrypy.tools.json_in()
+    @cherrypy.tools.json_out()
+    def update_playlist(self):
+        request = cherrypy.request.json
+        name = request[0]
+        songs = request[1]
+        playlists.update_playlist(name, songs)
+        return "Done"
+    
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    def new_playlist(self):
+        return playlists.new_playlist()
+        
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    def get_playlist(self):
+        return playlists.get_songs()
+        
+    
 
 if __name__ == "__main__":
+
+    # set up environment
+    settings
     
     root_conf = {
         '/static': {
@@ -170,5 +299,5 @@ if __name__ == "__main__":
         }
     }
 
-    cherrypy.config.update({'server.socket_host': '0.0.0.0'} )
+    cherrypy.config.update({'server.socket_host': '127.0.0.1'} )
     cherrypy.quickstart(Root(), '/', root_conf)

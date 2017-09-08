@@ -12,9 +12,176 @@
 
 <style>
 
-#playlist span {
-    float: right;
+@media all and ( min-width:60em ) {
+
+     /* (these classes need to be attached to the appropriate elements) */
+
+	/* hide open and close menu <a> links when full-screen */
+	.menu-panel-open {
+		display: none !important;
+	}
+	
+	.menu-panel-close {
+	    display: none !important;
+	 }
+	 
+    /* the left side panel <div> */
+	.menu-panel {
+		visibility: visible;
+		position: relative;
+		left: 0;
+		clip: initial;
+		float: left;
+		width: 25%;
+		height: 100vh; 
+
+		-webkit-transition: none !important;
+		-moz-transition: none !important;
+		transition: none !important;
+
+		-webkit-transform: none !important;
+		-moz-transform: none !important;
+		transform: none !important;
+
+		-webkit-box-shadow: none;
+		-moz-box-shadow: none;
+		box-shadow: none;
+
+	}
+    
+    /* resize to within header and footer */
+    .menu-panel .ui-panel-inner {
+        margin-top: 3em;
+        margin-bottom: 3em;
+	}
+    
+    
+   /* the main content area <div> */
+	.main {
+		width: 67%;
+		padding-top: 2em;
+		padding-left: 5%;
+		padding-right: 3%;
+		float: right;
+	
+	}
+    
+    /* disable the  jquery mobile dismiss layer that normally closes the panel */
+     .ui-panel-dismiss {
+        display: none !important;
+     }
 }
+
+/* icons for the player interface */
+
+.ui-icon-play-icon:after {
+    background-image: url("/static/svg-play-button-icon-1.svg");
+}
+
+.songlist-button {
+    width: 12em
+    margin: 0;
+    padding-right: 1em;
+    padding-left: 1em;
+    padding-top: 0;
+    padding-bottom: 0;
+    text-align: center;
+    height: 100%;
+}
+
+.songlist-button:hover {
+    background-image: url("/static/svg-play-button-icon-1.svg");
+    background-repeat: no-repeat;
+}
+
+
+ul.tracklist {
+    width: 90%;
+    padding-left: 5%;
+    padding-right: 5%;
+    list-style-type: none;
+}
+
+ul.tracklist li {
+    background-color: #f0f0f0;
+    height: 3em;
+    padding-top:0;
+    padding-bottom:0;
+    margin-bottom: 0.2em;
+}
+
+ul.tracklist li:hover {
+    background-color: #e0e0e0;
+}
+
+
+.tracklist-play-button {
+    width: 3em;
+    padding-left: 0.5em;
+    padding-right: 1em;
+    padding-top: 1em;
+    padding-bottom: 1em;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    cursor: pointer;
+}
+
+.tracklist-play-button:link {
+    color: black;
+}
+
+.tracklist-play-button:visited {
+    color: black;
+}
+
+.tracklist-play-button:hover {
+    background-image: url("/static/svg-play-button-icon-1.svg");
+    background-repeat:  no-repeat;
+    background-position: center;
+    background-size: 1.5em 1.5em;
+}
+
+.tracklist-play-button:hover .track-number {
+    position: relative;
+    left: -1000em;
+}
+
+.tracklist-play-button:active {
+    
+}
+
+
+.tracklist-title {
+    display: inline;
+    font-weight: bold;
+    padding-top:1em;
+    padding-bottom: 1em;
+    height: 100%;
+}
+
+
+
+
+#info-playlist-name {
+    text-align: center;
+}
+
+#info-song-title {
+    text-align: center;
+}
+
+#audio-controls {
+}
+
+.playlist_song {
+    float: left;
+}
+
+.playlist_remove {
+    width: 8em;
+    float: right;
+
 #playlist_messages {
     color: red;
 }
@@ -26,7 +193,6 @@
     
     
     var playlist;
-    
     var songlist;
     
     
@@ -34,7 +200,21 @@
    /* ------------*/
    /* UI handlers */
    /* ------------*/
-        
+    
+    
+    /* player message area */
+    /* ------------------- */
+    
+    var show_message = function(song, state) {
+        $("#message").html("<strong>" + song + " " + state + "</strong>");
+    };
+    
+    
+    /* tracklist */
+    var play_song = function(n, elem) {
+        console.log("play song"+n);
+        console.log($(elem).parent);
+    };
      
     /* playlist */
     /* -------- */
@@ -45,7 +225,17 @@
         $.ajax({
             url: "/get_playlist", 
             success: function(result) {
-                console.log("got");
+                var playlist = $("#playlist");
+                var title = result[0];
+                var songs = result[1];
+                $("#playlist_title").html(title);
+                for(var i=0; i<songs.length; i++) {
+                    var song = songs[i];
+                    playlist.append('<li> <span class="playlist_song">' + song + '</span>' +
+                        '<span class="playlist_remove"><a href="#" onclick="remove_playlist_item(this);">Remove</a><span></li>');           
+                }
+                playlist.listview("refresh");
+                console.log(result);
             }
          
          });   
@@ -55,18 +245,18 @@
         var playlist = $("#playlist li");
         var items = [];
         for(var i=0; i<playlist.length; i++) {
-            //console.log($(playlist[i]).text());
-            items.push($(playlist[i]).text());
+            //console.log($(playlist[i]).find(".playlist_song").text());
+            items.push($(playlist[i]).find(".playlist_song").text());
         }
         console.log(items);
         $.ajax({
             url: "/update_playlist",
             contentType: "application/json",
             data: JSON.stringify(items),
-            type: "POST",
-        
+            type: "POST",    
             success: function(results) {
                 $("#playlist_messages").html( "<b>Saved</b>");
+                console.log("saved playlist");
                 console.log(results);
             }
         });
@@ -75,8 +265,8 @@
     
     var append_playlist = function(song) {
         var playlist = $("#playlist");
-        playlist.append('<li>' + songlist[song] + 
-                        '<span><a href="#" onclick="remove_playlist_item(this);">Remove</a><span></li>');
+        playlist.append('<li> <span class="playlist_song">' + songlist[song] + '</span>' +
+                        '<span class="playlist_remove"><a href="#" onclick="remove_playlist_item(this);">Remove</a><span></li>');
         playlist.listview("refresh");
     };
     
@@ -113,7 +303,7 @@
   
  
 
-    
+
     
     /* player buttons */
     
@@ -121,7 +311,7 @@
         $.ajax({
            url: "/play",
            success: function(result) {
-                $("#message").html("<strong>"+result+"</strong>");
+                show_message(result, "playing");
                 console.log(result);
            }
         });
@@ -132,7 +322,7 @@
         $.ajax({
            url: "/stop",
            success: function(result) {
-                $("#message").html("<strong>"+result+"</strong>");
+                show_message(result, "stopped");
                 console.log(result);
            }
         });
@@ -143,7 +333,7 @@
         $.ajax({
            url: "/next",
            success: function(result) {
-                $("#message").html("<strong>"+result+"</strong>");
+                show_message(result, "next");
                 console.log(result);
            }
         });
@@ -154,7 +344,7 @@
         $.ajax({
            url: "/prev",
            success: function(result) {
-                $("#message").html("<strong>"+result+"</strong>");
+                show_message(result, "prev");
                 console.log(result);
            }
         });
@@ -165,21 +355,26 @@
         $.ajax({
            url: "/panic",
            success: function(result) {
-                $("#message").html("<strong>"+result+"</strong>");
+                show_message(result, "emergency stop");
                 console.log(result);
            }
         });
     };
    
+   
+
+   
+   
    /* app init */
    
-   $(document).on("pagecreate", "#settings", function() {
+   $(document).on("pagebeforeshow", "#playlist_settings", function() {
+        get_playlist();
         $("#playlist").sortable();
         $("#playlist").disableSelection();
-        update_songlist();
-        
+       update_songlist();
      }
    );
+   
    
    
 
@@ -191,33 +386,67 @@
 
 <div data-role="page" id="one">
 
-    <div data-role="header">
+    <div data-role="header" class="header">
+        <a href="#page-one-menu" class="menu-panel-open" title="Main Menu">&#9776;</a>  
         <h1>Music Server Funkadelic</h1>
     </div>
 
-    <div role="main" class="ui-content">
-    
-        <h3>Playlist: The show of shows <a>Change</a></h3>
-        <h4>Song 1:</h4>
-        <div id="message" class="ui-shadow" style="height:50px;"> </div>
+    <div role="main" class="ui-content main">
+        <div id="info-box">
+            <h3 id="info-playlist-name">Playlist name</h3>
+            <h4 id="info-song-title">Song title</h4>
+            <div id="message" class="ui-shadow" style="height:50px;"> </div>
+        </div>
         
-        <button onclick="play_action();">Play/Pause</button>
-        <button onclick="next_action();">Next</button>
-        <button onclick="prev_action();">Prev</button>
-        <button onclick="stop_action();">Stop</button>
-        <button onclick="panic_action();">PANIC</button>
+        <div id="audio-controls" class="ui-grid-b">
+            <div class="ui-block-a">
+                 <a href="#" onclick="prev_action();" data-role="button"> <img src="\static\svg-rewind-button-icon-1.svg"  width="50px"/> </a>
+            </div>
+            <div class="ui-block-b">
+                <a href="#" onclick="play_action();" data-role="button"> <img id="play-button" src="\static\svg-play-button-icon-1.svg" width="50px"  /> </a>
+            </div>
+            <div class="ui-block-c">
+                <a href="#" onclick="next_action();"  data-role="button"> <img src="\static\svg-fast-forward-button-icon-1.svg"  width="50px" /> </a>
+            </div>
+        </div>
 
+        <ul class="tracklist">
+            <li><a href="#" class="tracklist-play-button" onclick="play_song(1, this);"><div class="track-number">1</div></a>
+                <div class="tracklist-title">Debora.mp3</div>
+            </li>
+            <li><a href="#" class="tracklist-play-button track-playing" onclick="play_song(2, this);"><div class="track-number">2</div></a>
+                <div class="tracklist-title">Never Better.mp3</div>
+            </li>
+            <li><a href="#" class="tracklist-play-button track-paused" onclick="play_song(3, this);"><div class="track-number">3</div></a>
+                <div class="tracklist-title">Debora.mp3</div>
+            </li>
+        </ul>   
+        
+        
     </div>
-    <div data-role = "footer">
-        <p>&copy; Alan Wong 
-        <a href="#settings" class="ui-btn ui-shadow ui-corner-all">Settings</a></p>
+    <div data-role="footer" data-position="fixed">
+        &copy; Alan Wong
+    </div>
+    
+     <div data-role = "panel" id = "page-one-menu" class="menu-panel" data-position="left" data-display="overlay">
+        <a href="#one" class="menu-panel-close" data-rel="close">Close</a>
+        <h2>Settings</h2>
+        <div class="ui-form-contain">
+            <div for="select-native-1">Choose Playlist</div>
+            <select name="select-native-1">
+                <option value="1">Playlist 1</option>
+                <option value="2">Playlist 2</option>
+            </select>
+        </div>
+        <a href="#playlist_settings">Edit playlists</a>
+     
     </div>
  
 </div><!-- page -->
 
 
 
-<div data-role="page" id="settings" data-theme="a">
+<div data-role="page" id="playlist_settings" data-theme="a">
 
     <div data-role="header">
         <p><a href="#one">Back</a></p>
@@ -226,6 +455,7 @@
     <div role = "main" class="ui-content">
        
         <h1>Playlist</h1>
+        <h2 id="playlist_title">Title</h2>
         <p>(Drag to reorder)</p>
         <p id="playlist_messages"></p>
         <ul data-role="listview" data-editable="true" id="playlist"  data-inset="true">
