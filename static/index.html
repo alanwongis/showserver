@@ -96,14 +96,14 @@
 
 /* styling for the tracklist */
 
-ul.tracklist {
+#tracklist {
     width: 90%;
     padding-left: 5%;
     padding-right: 5%;
     list-style-type: none;
 }
 
-ul.tracklist li {
+#tracklist li {
     background-color: #f0f0f0;
     height: 3em;
     padding-top:0;
@@ -111,7 +111,7 @@ ul.tracklist li {
     margin-bottom: 0.2em;
 }
 
-ul.tracklist li:hover {
+#tracklist li:hover {
     background-color: #e0e0e0;
 }
 
@@ -159,27 +159,36 @@ ul.tracklist li:hover {
 }
 
 /* the states of the track */
-
 .track-playing {
-    background-image: url("/static/giphy.gif");
+    background: #505050;
+}
+
+
+.track-playing .tracklist-play-button {
+    background-image: url("/static/svg-playing-button.svg");
     background-repeat:  no-repeat;
     background-position: center;
     background-size: 2.5em 2.5em;
  }
+
  
- .track-playing:hover {
+ .track-playing:hover .tracklist-play-button {
     background-image: url("/static/svg-pause-button-icon-1.svg");
     background-repeat:  no-repeat;
     background-position: center;
     background-size: 1.5em 1.5em;
 }
  
-.track-playing .track-number {
+.track-playing div.track-number {
     position: relative;
     left: -1000em;
  }
  
-.track-paused {
+.track-playing .tracklist-title {
+    color: #00ff00;
+ }
+
+.track-paused .tracklist-play-button {
     background-image: url("/static/svg-pause-button-icon-1.svg");
     background-repeat:  no-repeat;
     background-position: center;
@@ -241,14 +250,41 @@ ul.tracklist li:hover {
     };
     
     
-    /* tracklist */
-    var play_song = function(n, elem) {
-        console.log("play song"+n);
-        console.log($(elem).parent);
+    /* tracklist (songs queued for play) */
+    
+    var play_track = function(num) {
+        console.log("play song" + num);
+        console.log($("#track-"+num).text());
+        $.ajax({
+            url: "/play_track/"+num,
+            success: function(result) {
+                console.log(result);
+            }
+        });
     };
      
-    /* playlist */
-    /* -------- */
+     
+    var refresh_tracklist = function() {
+        $.ajax({
+            url: "/get_playlist",
+            success: function(result) {
+                console.log("success");
+                var tracklist = $("#tracklist");
+                var songs = result["songs"];
+                console.log(songs);
+                tracklist.empty() /* delete exisitng children */
+                for(var i=0; i<songs.length; i++) {
+                    var track_title = songs[i];
+                        tracklist.append('<li><a href="#" class="tracklist-play-button" onclick="play_track(' + i +' , this);"><div class="track-number">' + (i+1) + '</div></a><div class="tracklist-title" id="track-'+ i +'">' + track_title + '</div></li>');
+                }
+            }
+        });
+     }; 
+     
+     
+     
+    /* edit playlist */
+    /* ------------- */
 
 
     
@@ -256,9 +292,11 @@ ul.tracklist li:hover {
         $.ajax({
             url: "/get_playlist", 
             success: function(result) {
+
                 var playlist = $("#playlist");
-                var title = result[0];
-                var songs = result[1];
+                var title = result["title"];
+                var songs = result["songs"];
+                console.log(songs);
                 $("#playlist_title").html(title);
                 for(var i=0; i<songs.length; i++) {
                     var song = songs[i];
@@ -271,6 +309,7 @@ ul.tracklist li:hover {
          
          });   
     };
+    
     
     var save_playlist = function() {
         var playlist = $("#playlist li");
@@ -398,6 +437,11 @@ ul.tracklist li:hover {
    
    /* app init */
    
+   $(document).on("pagebeforeshow", "#one", function() {
+          refresh_tracklist();
+       }
+    );
+   
    $(document).on("pagebeforeshow", "#playlist_settings", function() {
         get_playlist();
         $("#playlist").sortable();
@@ -441,14 +485,16 @@ ul.tracklist li:hover {
             </div>
         </div>
 
-        <ul class="tracklist">
+        <ul id="tracklist">
             <li><a href="#" class="tracklist-play-button" onclick="play_song(1, this);"><div class="track-number">1</div></a>
                 <div class="tracklist-title">Debora.mp3</div>
             </li>
-            <li><a href="#" class="tracklist-play-button track-playing" onclick="play_song(2, this);"><div class="track-number">2</div></a>
+            <li class="track-playing">
+                <a href="#" class="tracklist-play-button" onclick="play_song(2, this);"><div class="track-number">2</div></a>
                 <div class="tracklist-title">Never Better.mp3</div>
             </li>
-            <li><a href="#" class="tracklist-play-button track-paused" onclick="play_song(3, this);"><div class="track-number">3</div></a>
+            <li class="track-paused">
+                <a href="#" class="tracklist-play-button" onclick="play_song(3, this);"><div class="track-number">3</div></a>
                 <div class="tracklist-title">Debora.mp3</div>
             </li>
         </ul>   

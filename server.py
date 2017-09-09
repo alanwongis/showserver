@@ -78,20 +78,34 @@ class PlaylistManager(object):
             self.playlists  = pickle.load(open("playlists.pkl", "rb"))
         except:
             self.playlists = { "default": []}
-        self.curr_playlist_name = "default"
+        self.curr_playlist_name = "default" 
+        
+        
+    def curr_playlist(self):
+        """returns title of current playlist"""
+        return self.curr_playlist_name
+
+
+    def get_songs(self):
+        """list songs in current playlist"""
+        return self.playlists[self.curr_playlist_name]
 
 
     def list_all(self):
         """returns all the playlist names"""
+        print(str(self.playlists))
         return self.playlists.keys()
 
+
     def select_playlist(self, name):
-        self.curr_playlist_name = name
+        """switch current playlist to 'name'"""
+        if name in self.playlists.keys():
+            self.curr_playlist_name = name
+            return True
+        else:
+            return False   
 
-    def get_songs(self):
-        return [self.curr_playlist_name,
-                self.playlists[self.curr_playlist_name] ]
-
+    
     def new_playlist(self):
         # creates a new empty playlist
         if not "new playlist" in self.playlists.keys():
@@ -112,11 +126,13 @@ class PlaylistManager(object):
             return True
         else:
             return False # can't rename  because name already exists
-            
-            
-    def update_playlist(self, name, songs):
-        self.playlists[name] = songs
+
+              
+    def update_playlist(self, songs):
+        """updates the list of songs in the current playlist"""
+        self.playlists[self.curr_playlist_name] = songs
         pickle.dump(self.playlists, open("playlists.pkl", "wb"), protocol = 2)
+        return True
 
      
 playlists = PlaylistManager()
@@ -139,38 +155,52 @@ class DummyMusicPlayer(object):
             self.curr_song = -1
             self.curr_song_name = "None"
         self.status = "stopped"
+
        
     def play(self):
         return self.get_status()
+
     
     def next(self):
-        song_number = 1
-        song_name = "next dummmy song"
-        status = "playing"
+        if self.curr_song+1 < len(self.playlist):
+            self.curr_song += 1
+            self.curr_song_name = self.playlist[self.curr_song]
+        self.status = "playing"
         return self.get_status()
     
     
     def prev(self):
-        song_number = 1
-        song_name = "prev dummy song"
-        status = "playing"
+        if self.curr_song-1 > 0:
+            self.curr_song -= 1
+            self.curr_song_name = self.playlist[self.curr_song]
+        self.status = "playing"
         return self.get_status()
   
   
     def stop(self):
-        song_number = 1
-        song_name = "prev dummy song"
-        status = "playing"
+        self.status = "stopped"
         return self.get_status()
+
   
-    def change_song(self, song_num = 1):
+    def change_song(self, song_num):
+        if song_num < len(self.playlist) and song_num >0:
+            self.curr_song = song_num
+            self.song_name = self.playlist[song_num]
         return self.get_status()
-      
+
+    
+    def set_playlist(self, songs):
+        self.playlist = songs
+        
+        
     def get_status(self):
-        return {"song_title_": "a songe", "track_num": 1,  "status": "playing", "time": 0, "length": 100}
+        return {"song_title_": self.curr_song_name,
+                "track_num"  : self.curr_song,
+                "status"     : self.status,
+                "time"       : 0, "length": 100}
        
        
-music_player = DummyMusicPlayer() 
+music_player = DummyMusicPlayer(playlists.get_songs()) 
   
 
   
@@ -185,7 +215,7 @@ class Root(object):
     def index(self):
         raise cherrypy.HTTPRedirect("/static/index.html")
 
-    # player API
+    # player controls API
         
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -211,12 +241,23 @@ class Root(object):
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def status(self):
-        status_msg = { "song": "dummy song name",
-                       "track_num": 1,
-                       "track_lenght": 60,
-                       "curr_time": 1, 
-                       "state": "paused" }     
+        status_msg =  music_player.get_status()    
         return status_msg
+        
+        
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    def play_track(self, track_num):
+        """handle the play button toggle in the track list"""
+        status = music_player.get_status()
+        curr_track_num = status["track_num"]
+        if track_num != curr_track_num:
+            music_player.stop()
+            music_player.change_song(track_num)
+            music_player.play()
+        else:
+            music_player.play()
+        return
         
     # songlist API
     
@@ -248,37 +289,41 @@ class Root(object):
         f.close()
         return str( (filename, size) )
         
-    # playlist API
+    # playlist manager API
     
     @cherrypy.expose
     @cherrypy.tools.json_out()
-    def list_all(self):
+    def show_playlists(self):
         return playlists.list_all()
+
 
     @cherrypy.expose
     def select_playlist(self, name):
-        playlists.select_playlist(name)
+        return playlists.select_playlist(name)
         
-    @cherrypy.expose
-    @cherrypy.tools.json_in()
-    @cherrypy.tools.json_out()
-    def update_playlist(self):
-        request = cherrypy.request.json
-        name = request[0]
-        songs = request[1]
-        playlists.update_playlist(name, songs)
-        return "Done"
     
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def new_playlist(self):
         return playlists.new_playlist()
+    
+    
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    def get_playlist_name(self):
+        return playlists.curr_playlist()
         
+    
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def get_playlist(self):
-        return playlists.get_songs()
+        title = playlists.curr_playlist()
+        songs = playlists.get_songs()
+        return {"title": title, "songs": songs}
         
+        
+    
+    
     @cherrypy.expose
     @cherrypy.tools.json_in()
     @cherrypy.tools.json_out()
@@ -288,8 +333,16 @@ class Root(object):
         new_name = request["new_name"]
         return playlists.rename_playlist(old_name, new_name)
         
-        
     
+    @cherrypy.expose
+    @cherrypy.tools.json_in()
+    @cherrypy.tools.json_out()
+    def update_playlist(self):
+        request = cherrypy.request.json
+        songs = request[0]
+        return playlists.update_playlist(songs)     
+    
+
 
 if __name__ == "__main__":
 
