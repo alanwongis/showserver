@@ -294,6 +294,7 @@
             success: function(result) {
 
                 var playlist = $("#playlist");
+                playlist.empty(); /* delete existing children */
                 var title = result["title"];
                 var songs = result["songs"];
                 console.log(songs);

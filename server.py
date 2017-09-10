@@ -339,7 +339,7 @@ class Root(object):
     @cherrypy.tools.json_out()
     def update_playlist(self):
         request = cherrypy.request.json
-        songs = request[0]
+        songs = request
         return playlists.update_playlist(songs)     
     
 
