@@ -1,0 +1,213 @@
+@media all and ( min-width:60em ) {
+
+     /* (these classes need to be attached to the appropriate elements) */
+
+	/* hide open and close menu <a> links when full-screen */
+	.menu-panel-open {
+		display: none !important;
+	}
+	
+	.menu-panel-close {
+	    display: none !important;
+	 }
+	 
+    /* the left side panel <div> */
+	.menu-panel {
+		visibility: visible;
+		position: relative;
+		left: 0;
+		clip: initial;
+		float: left;
+		width: 25%;
+		height: 100vh; 
+
+		-webkit-transition: none !important;
+		-moz-transition: none !important;
+		transition: none !important;
+
+		-webkit-transform: none !important;
+		-moz-transform: none !important;
+		transform: none !important;
+
+		-webkit-box-shadow: none;
+		-moz-box-shadow: none;
+		box-shadow: none;
+
+	}
+    
+    /* resize to within header and footer */
+    .menu-panel .ui-panel-inner {
+        margin-top: 3em;
+        margin-bottom: 3em;
+	}
+    
+    
+   /* the main content area <div> */
+	.main {
+		width: 67%;
+		padding-top: 2em;
+		padding-left: 5%;
+		padding-right: 3%;
+		float: right;
+	
+	}
+    
+    /* disable the  jquery mobile dismiss layer that normally closes the panel */
+     .ui-panel-dismiss {
+        display: none !important;
+     }
+}
+
+/* icons for the player interface */
+
+.ui-icon-play-icon:after {
+    background-image: url("/static/svg-play-button-icon-1.svg");
+}
+
+.songlist-button {
+    width: 12em
+    margin: 0;
+    padding-right: 1em;
+    padding-left: 1em;
+    padding-top: 0;
+    padding-bottom: 0;
+    text-align: center;
+    height: 100%;
+}
+
+.songlist-button:hover {
+    background-image: url("/static/svg-play-button-icon-1.svg");
+    background-repeat: no-repeat;
+}
+
+/* styling for the tracklist */
+
+#tracklist {
+    width: 90%;
+    padding-left: 5%;
+    padding-right: 5%;
+    list-style-type: none;
+}
+
+#tracklist li {
+    background-color: #f0f0f0;
+    height: 3em;
+    padding-top:0;
+    padding-bottom:0;
+    margin-bottom: 0.2em;
+}
+
+#tracklist li:hover {
+    background-color: #e0e0e0;
+}
+
+.tracklist-play-button {
+    width: 3em;
+    padding-left: 0.5em;
+    padding-right: 1em;
+    padding-top: 1em;
+    padding-bottom: 1em;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    cursor: pointer;
+}
+
+.tracklist-play-button:link {
+    color: black;
+}
+
+.tracklist-play-button:visited {
+    color: black;
+}
+
+.tracklist-play-button:hover {
+    background-image: url("/static/svg-play-button-icon-1.svg");
+    background-repeat:  no-repeat;
+    background-position: center;
+    background-size: 1.5em 1.5em;
+}
+
+.tracklist-play-button:hover .track-number {
+    position: relative;
+    left: -1000em;
+}
+
+.tracklist-play-button:active {
+}
+
+.tracklist-title {
+    display: inline;
+    font-weight: bold;
+    padding-top:1em;
+    padding-bottom: 1em;
+    height: 100%;
+}
+
+/* the states of the track */
+.track-playing {
+    background: #505050;
+}
+
+
+.track-playing .tracklist-play-button {
+    background-image: url("/static/svg-playing-button.svg");
+    background-repeat:  no-repeat;
+    background-position: center;
+    background-size: 2.5em 2.5em;
+ }
+
+ 
+ .track-playing:hover .tracklist-play-button {
+    background-image: url("/static/svg-pause-button-icon-1.svg");
+    background-repeat:  no-repeat;
+    background-position: center;
+    background-size: 1.5em 1.5em;
+}
+ 
+.track-playing div.track-number {
+    position: relative;
+    left: -1000em;
+ }
+ 
+.track-playing .tracklist-title {
+    color: #00ff00;
+ }
+
+.track-paused .tracklist-play-button {
+    background-image: url("/static/svg-pause-button-icon-1.svg");
+    background-repeat:  no-repeat;
+    background-position: center;
+    background-size: 1.5em 1.5em;
+}
+
+.track-paused .track-number {
+    position: relative;
+    left: -1000em;
+}
+
+
+
+
+#info-playlist-name {
+    text-align: center;
+}
+
+#info-song-title {
+    text-align: center;
+}
+
+#audio-controls {
+}
+
+.playlist_song {
+    float: left;
+}
+
+.playlist_remove {
+    width: 8em;
+    float: right;
+
+#playlist_messages {
+    color: red;
+}
