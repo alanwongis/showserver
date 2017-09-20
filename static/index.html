@@ -24,6 +24,9 @@
     </div>
 
     <div role="main" class="ui-content main">
+        <div style="float: left;">        
+            <a href="#">Edit</a>
+        </div>
         <div id="info-box">
             <h3 id="info-playlist-name">Playlist name</h3>
             <h4 id="info-song-title">Song title</h4>
@@ -55,6 +58,7 @@
                 <div class="tracklist-title">Debora.mp3</div>
             </li>
         </ul>   
+
         
         
     </div>
@@ -64,6 +68,7 @@
     
      <div data-role = "panel" id = "page-one-menu" class="menu-panel" data-position="left" data-display="overlay">
         <a href="#one" class="menu-panel-close" data-rel="close">Close</a>
+        
         <h2>Select Playlist</h2>
         <ul data-role="listview" id="playlist_chooser">
             <li data-icon="false"><a href="#" onclick="change_playlist(0);">Default   </a></li>
@@ -73,6 +78,17 @@
         <p>
         <a href="#playlist_settings">Edit Playlist</a>
          </p>
+         
+        <h2>Playlists</h2>
+        <div>
+        <ul data-role="listview">
+             <li><a href="#">Playlist 1</a></li>
+             <li><a href="#">Playlist 2</a></li>
+             <li><a href="#">Playlist 3</a></li>
+        </ul>
+        </div>
+        <a href="#playlist_settings">New playlist</a>
+        
     </div>
  
 </div><!-- page -->
