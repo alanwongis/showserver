@@ -126,18 +126,18 @@ var add_song = function(song_num) {
 
 
 
-var update_songlist = function() {
+var update_songlist = function(ev) {
    $.ajax({
     url: "/get_songlist",
     success: function(result) {
         songlist = result;
         var ul = $("#songlist");
         ul.empty();
-        for(var i=0; i<3; i++) {
+        for(var i=0; i<songlist.length; i++) {
             ul.append('<li>'+ songlist[i] +' <span style="float: right;"><a href="#" onclick="append_playlist('+i+');")>Add</a></span>');     
         }
         ul.listview("refresh");
-    }
+      }
     });
  };
 
@@ -218,10 +218,28 @@ var change_playlist = function(num) {
 };
 
 
+/* song manager page */
+
+var refresh_song_manager_list = function() {
+   $.ajax({
+    url: "/get_songlist",
+    success: function(result) {
+        console.log(result);
+        songlist = result;
+        var ul = $("#song_manager_list");
+        ul.empty();
+        for(var i=0; i<songlist.length; i++) {
+            ul.append('<li>'+ songlist[i] +' <span style="float: right;"><a href="#" onclick="append_playlist('+i+');")>Add</a></span>');     
+        }
+        ul.listview("refresh");
+     }
+  });
+};
+
+
 
 /* app init */
 
-$("#one")
 
 $("#one").on("pagebeforeshow", function() {
       refresh_tracklist();
@@ -236,5 +254,47 @@ $("#playlist_settings").on("pagebeforeshow", function() {
    /*reset save button*/
    $("#save-playlist-btn").text("Click to Save");
  }
+);
+
+$("#song-manager").on("pagebeforeshow", function() {
+    refresh_song_manager_list();
+  }
+);
+
+$("#upload-form").on("submit", function(ev) {
+        ev.preventDefault();
+        $.ajax({
+            xhr: function() {
+                var progress = $('.progress'),
+                    xhr = $.ajaxSettings.xhr();
+
+                progress.show();
+
+                xhr.upload.onprogress = function(ev) {
+                    if (ev.lengthComputable) {
+                        var percentComplete = parseInt((ev.loaded / ev.total) * 100);
+                        progress.val(percentComplete);
+                        if (percentComplete === 100) {
+                            progress.hide().val(0);
+                        }
+                    }
+                };
+
+                return xhr;
+            },
+            url: '/upload_song',
+            type: 'POST',
+            data: new FormData(this),
+            contentType: false,
+            cache: false,
+            processData: false,
+            success: function(data, status, xhr) {
+                refresh_song_manager_list();
+            },
+            error: function(xhr, status, error) {
+                // ...
+            }
+       });
+    }
 );
 

@@ -64,8 +64,17 @@ def list_music():
     return filenames
     
 
-def save_music(file_name, data):
-    return
+def save_music(filename, data):
+    # check the extension to see if it is music file
+    ext = filename.split(".")[-1].lower()
+    if ext in ["mp3", "m4a", "wav", "ogg" ,"oga", "aac"]:
+        f = open(os.path.join(music_dir, file_name), "wb")
+        f.write(data)
+        f.close()
+        return "saved - "+ filename
+    else:
+        return "not a music file - "+ filename
+       
 
    
 # playlists
@@ -272,8 +281,8 @@ class Root(object):
         return
         
     @cherrypy.expose
-    @cherrypy.tools.json_in()
-    @cherrypy.tools.json_out()
+    #@cherrypy.tools.json_in()
+    #@cherrypy.tools.json_out()
     def upload_song(self,songfile=None):
         filename = os.path.join(music_dir, songfile.filename)
         data = ""
