@@ -283,10 +283,14 @@ class Root(object):
     @cherrypy.expose
     @cherrypy.tools.json_in()
     @cherrypy.tools.json_out()
-    def upload_song(self,songfile=None):
-        print(songfile)
+    def upload_song(self):
+        data = cherrypy.request.json
+        print(data)
+        return
+         
         filename = os.path.join(music_dir, songfile.filename)
         data = ""
+        print("filename")
         while True:
             chunk = songfile.file.read(8192)
             if not chunk:
@@ -297,7 +301,7 @@ class Root(object):
         f = open(filename, "wb")
         f.write(data)
         f.close()
-        return str( (filename, size) )
+        return 
         
     # playlist manager API
     

@@ -262,37 +262,27 @@ $("#song-manager").on("pagebeforeshow", function() {
 );
 
 $("#upload-form").on("submit", function(ev) {
+        ev.stopPropagation();
         ev.preventDefault();
-        var files = document.getElementById("song-upload").files;
+        var file = document.getElementById("songfile").files[0];
         var data = new FormData();
-        $.each(files, function(key, value) {
-            data.append(key, data);
-        });
-        console.log(data);
+        data.append("songfile", file);
+        console.log("Songs are:"+data);
         $.ajax({
             url: "/upload_song",
             type: "POST",
             data: data,
             cache: false,
-            dataType: "json",
-            processData: false,
             contentType: false,
-            success: function(data, textStatus, jqXHDR) {
-                if(typeof data.error === 'undefined') {
-                    submitForm(event, data);
-                } else {
-                    console.log("Errors: "+ data.error);
-                }
+            processData: false,
+            success: function(status) {
+                console.log("Success: "+ status);
             },
-            error: function(jqxHdr, textStatus, ErrorThrown) {
-                console.log("Errors: " + textStatus);
+            error: function(status) {
+                console.log("Errors: " + status);
             }
          });
     }
  );
  
-                
-            
-    }
-);
 
