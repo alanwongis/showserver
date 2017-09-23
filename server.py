@@ -281,9 +281,10 @@ class Root(object):
         return
         
     @cherrypy.expose
-    #@cherrypy.tools.json_in()
-    #@cherrypy.tools.json_out()
+    @cherrypy.tools.json_in()
+    @cherrypy.tools.json_out()
     def upload_song(self,songfile=None):
+        print(songfile)
         filename = os.path.join(music_dir, songfile.filename)
         data = ""
         while True:

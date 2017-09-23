@@ -263,38 +263,36 @@ $("#song-manager").on("pagebeforeshow", function() {
 
 $("#upload-form").on("submit", function(ev) {
         ev.preventDefault();
+        var files = document.getElementById("song-upload").files;
+        var data = new FormData();
+        $.each(files, function(key, value) {
+            data.append(key, data);
+        });
+        console.log(data);
         $.ajax({
-            xhr: function() {
-                var progress = $('.progress'),
-                    xhr = $.ajaxSettings.xhr();
-
-                progress.show();
-
-                xhr.upload.onprogress = function(ev) {
-                    if (ev.lengthComputable) {
-                        var percentComplete = parseInt((ev.loaded / ev.total) * 100);
-                        progress.val(percentComplete);
-                        if (percentComplete === 100) {
-                            progress.hide().val(0);
-                        }
-                    }
-                };
-
-                return xhr;
-            },
-            url: '/upload_song',
-            type: 'POST',
-            data: new FormData(this),
-            contentType: false,
+            url: "/upload_song",
+            type: "POST",
+            data: data,
             cache: false,
+            dataType: "json",
             processData: false,
-            success: function(data, status, xhr) {
-                refresh_song_manager_list();
+            contentType: false,
+            success: function(data, textStatus, jqXHDR) {
+                if(typeof data.error === 'undefined') {
+                    submitForm(event, data);
+                } else {
+                    console.log("Errors: "+ data.error);
+                }
             },
-            error: function(xhr, status, error) {
-                // ...
+            error: function(jqxHdr, textStatus, ErrorThrown) {
+                console.log("Errors: " + textStatus);
             }
-       });
+         });
+    }
+ );
+ 
+                
+            
     }
 );
 
