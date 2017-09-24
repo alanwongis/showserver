@@ -281,13 +281,12 @@ class Root(object):
         return
         
     @cherrypy.expose
-    @cherrypy.tools.json_in()
-    @cherrypy.tools.json_out()
-    def upload_song(self):
-        data = cherrypy.request.json
-        print(data)
-        return
-         
+    #@cherrypy.tools.json_in()
+    #@cherrypy.tools.json_out()
+    def upload_song(self, *args, **kwargs):
+        #print("args:", str(args))
+        #print("kwargs:", str(kwargs))
+        songfile = kwargs["songfile"]
         filename = os.path.join(music_dir, songfile.filename)
         data = ""
         print("filename")
@@ -301,7 +300,7 @@ class Root(object):
         f = open(filename, "wb")
         f.write(data)
         f.close()
-        return 
+        return "Done"
         
     # playlist manager API
     

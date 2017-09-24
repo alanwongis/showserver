@@ -229,7 +229,7 @@ var refresh_song_manager_list = function() {
         var ul = $("#song_manager_list");
         ul.empty();
         for(var i=0; i<songlist.length; i++) {
-            ul.append('<li>'+ songlist[i] +' <span style="float: right;"><a href="#" onclick="append_playlist('+i+');")>Add</a></span>');     
+            ul.append('<li>'+ songlist[i] +' <span style="float: right;"><a href="#" onclick="delete_song('+i+');")>Remove</a></span>');     
         }
         ul.listview("refresh");
      }
@@ -257,6 +257,7 @@ $("#playlist_settings").on("pagebeforeshow", function() {
 );
 
 $("#song-manager").on("pagebeforeshow", function() {
+    var upload_button = $("#submit-song");
     refresh_song_manager_list();
   }
 );
@@ -277,6 +278,8 @@ $("#upload-form").on("submit", function(ev) {
             processData: false,
             success: function(status) {
                 console.log("Success: "+ status);
+               $("#upload_success_msg").html("successfully uploaded ");
+               refresh_song_manager_list();
             },
             error: function(status) {
                 console.log("Errors: " + status);
